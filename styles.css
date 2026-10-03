@@ -19,9 +19,9 @@
   --line-strong:#d3cec3;
 
   /* the single accent  -  used ONLY for the tactic box and its heading */
-  --accent:      #2e6b5e;
-  --accent-soft: #e7f0ed;
-  --accent-line: #bcd6cc;
+  --accent:      #1ba7b8;
+  --accent-soft: #e6f4f5;
+  --accent-line: #a9d8dd;
 
   /* a second, quieter accent for the primary action button */
   --action:      #2b4a7a;
@@ -67,8 +67,7 @@ body{
   text-decoration: none; color: var(--ink);
 }
 .brand-mark{
-  font-size: 1.3rem; color: var(--accent); line-height: 1;
-  transform: translateY(-1px);
+  width: 28px; height: 30px; display: block; flex: 0 0 auto;
 }
 .brand-name{
   font-family: var(--font-ui);
@@ -350,6 +349,8 @@ body{
   .site-footer{ grid-area: footer; }
   .sidebar-toggle{ cursor: default; }
   .sidebar-toggle .chev{ display: none; }
+  /* On wide screens the toggle IS the heading, so hide the duplicate. */
+  .sidebar-title{ display: none; }
   .sidebar-inner{
     padding-top: 0;
     display: flex;
