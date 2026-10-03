@@ -1,0 +1,26 @@
+# Devpost Learn — keep personal learning context out of commits by default
+/devpost/learner-profile.md
+
+# The app's local API key file — NEVER commit this
+/env.js
+/src/env.js
+
+# Local credentials and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+
+# Skills installed by the Devpost Learn Skill Pack (regenerable, not project code)
+/.agents/
+/.claude/
+/agent/

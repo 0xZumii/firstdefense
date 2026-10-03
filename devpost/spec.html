@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First Defense — Technical Spec (visual companion)</title>
+<style>
+  :root{
+    --ink:#12161c; --ink-soft:#4a5560; --paper:#f7f5f1; --card:#fff;
+    --line:#e2ded6; --calm:#2f6f5e; --calm-soft:#e6f0ec;
+    --warn:#a8641f; --warn-soft:#f7ecdd; --cut:#9a3b34; --cut-soft:#f6e5e3;
+    --accent:#2b4a7a; --accent-soft:#e8eef8;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;font-size:17px}
+  .wrap{max-width:860px;margin:0 auto;padding:40px 20px 96px}
+  .kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;margin:0 0 10px}
+  h1{font-size:clamp(2rem,6vw,2.9rem);line-height:1.05;margin:0 0 6px;letter-spacing:-.02em}
+  .tagline{font-size:1.12rem;color:var(--ink-soft);margin:0;max-width:62ch}
+  header{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
+
+  section{margin:0 0 44px}
+  h2{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;margin:0 0 14px}
+  h3{font-size:1.05rem;margin:0 0 6px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px 24px;box-shadow:0 1px 2px rgba(20,25,35,.03)}
+  .card + .card{margin-top:12px}
+  .lede{font-size:1.06rem;margin:0}
+
+  /* journey stepper */
+  .stepper{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 1px 2px rgba(20,25,35,.03)}
+  .steps{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:18px}
+  .steps button{
+    flex:0 0 auto;font:inherit;font-size:.86rem;font-weight:600;cursor:pointer;
+    border:1.5px solid var(--line);background:#fdfcfb;color:var(--ink-soft);
+    border-radius:999px;padding:8px 15px;white-space:nowrap;transition:.15s
+  }
+  .steps button:hover{border-color:#c7bfae;color:var(--ink)}
+  .steps button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .step-panel{min-height:150px}
+  .step-panel h3{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;background:var(--accent-soft);color:var(--accent);border:1px solid #cdd9ec;border-radius:6px;padding:3px 8px}
+  .step-panel p{margin:8px 0 0}
+  .chain{font-family:var(--mono);font-size:.82rem;color:var(--ink-soft);margin-top:12px;line-height:1.7}
+  .chain b{color:var(--ink)}
+
+  /* diagram */
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px 20px;overflow-x:auto}
+  .flow{display:flex;align-items:center;min-width:760px}
+  .node{flex:1 1 0;min-width:120px;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#fdfcfb;text-align:center}
+  .node .n{font-weight:700;font-size:.9rem;font-family:var(--mono)}
+  .node .d{font-size:.78rem;color:var(--ink-soft);margin-top:4px;line-height:1.4}
+  .node.page{border-color:#cfd6e2;background:var(--accent-soft)}
+  .node.app{border-color:#d9d3c7;background:#fbf9f5}
+  .node.api{border-color:#bcd6cc;background:var(--calm-soft)}
+  .node.val{border-color:#e6cfae;background:var(--warn-soft)}
+  .node.store{border-color:#e0b7b2;background:var(--cut-soft)}
+  .arw{flex:0 0 30px;text-align:center;color:#b3aca0;font-weight:700}
+  .lonely{margin-top:16px;font-size:.86rem;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:12px}
+
+  /* io map */
+  table{width:100%;border-collapse:collapse;font-size:.92rem}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+  td code{font-family:var(--mono);font-size:.82rem}
+  .yes{color:var(--calm);font-weight:700}
+  .no{color:var(--cut);font-weight:700}
+
+  /* reveals */
+  .reveals{display:flex;flex-direction:column;gap:10px}
+  details{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden}
+  details[open]{box-shadow:0 1px 3px rgba(20,25,35,.05)}
+  summary{cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{transition:transform .18s;color:var(--ink-soft)}
+  details[open] summary .chev{transform:rotate(90deg)}
+  summary .count{font-family:var(--mono);font-size:.75rem;color:var(--ink-soft);font-weight:600}
+  details.def summary{border-left:5px solid var(--calm)}
+  details.risk summary{border-left:5px solid var(--warn)}
+  details.fix summary{border-left:5px solid var(--accent)}
+  .items{padding:0 18px 16px;margin:0;list-style:none}
+  .items li{padding:11px 0 11px 24px;border-top:1px solid var(--line);position:relative;font-size:.93rem}
+  .items li::before{position:absolute;left:0;top:12px;font-weight:700}
+  details.def .items li::before{content:"✓";color:var(--calm)}
+  details.risk .items li::before{content:"!";color:var(--warn)}
+  details.fix .items li::before{content:"›";color:var(--accent)}
+  .items .why{display:block;color:var(--ink-soft);font-size:.85rem;margin-top:3px}
+
+  /* code block */
+  pre{background:#fbf9f5;border:1px solid var(--line);border-radius:10px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.6;margin:0}
+  .filetree{white-space:pre}
+
+  .verdict{display:flex;gap:16px;flex-wrap:wrap}
+  .verdict .card{flex:1 1 300px}
+  .verdict h3{margin-bottom:8px}
+  .vsharp{color:var(--calm)}
+  .vsoft{color:var(--warn)}
+
+  footer{border-top:1px solid var(--line);padding-top:20px;color:var(--ink-soft);font-size:.85rem}
+  footer code{font-family:var(--mono);font-size:.8rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">Devpost Learn · Technical Spec</p>
+    <h1>First Defense</h1>
+    <p class="tagline">One static web page. It doesn't think — it asks a model to examine the pasted message as <em>evidence, never instructions</em>, and forces the answer into a fixed shape with no slot for a verdict.</p>
+  </header>
+
+  <section>
+    <h2>The core journey through the system</h2>
+    <div class="stepper">
+      <div class="steps" role="tablist" aria-label="Core journey steps">
+        <button role="tab" aria-selected="true" data-step="0">1 · Open the page</button>
+        <button role="tab" aria-selected="false" data-step="1">2 · Paste &amp; press</button>
+        <button role="tab" aria-selected="false" data-step="2">3 · Send as data</button>
+        <button role="tab" aria-selected="false" data-step="3">4 · Validate</button>
+        <button role="tab" aria-selected="false" data-step="4">5 · Render</button>
+        <button role="tab" aria-selected="false" data-step="5">6 · Save &amp; reset</button>
+      </div>
+      <div class="step-panel" id="stepPanel"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The pieces, and how a message moves</h2>
+    <div class="diagram">
+      <div class="flow">
+        <div class="node page"><div class="n">index.html</div><div class="d">+ styles.css<br>the page</div></div>
+        <div class="arw">→</div>
+        <div class="node app"><div class="n">app.js</div><div class="d">flow &amp; rendering</div></div>
+        <div class="arw">→</div>
+        <div class="node api"><div class="n">api.js</div><div class="d">ONE provider file<br>+ system prompt + schema</div></div>
+        <div class="arw">→</div>
+        <div class="node val"><div class="n">schema.js</div><div class="d">validate before<br>display</div></div>
+        <div class="arw">→</div>
+        <div class="node store"><div class="n">store.js</div><div class="d">history + key<br>in localStorage</div></div>
+      </div>
+      <p class="lonely">Also static content: <code>phrases.js</code> (the always-visible scam-phrase list and the fixed "verify with a number you look up yourself" copy — which the model cannot touch). No server, no database, no backend anywhere in the picture.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>The result shape — where "never a verdict" is enforced</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>Field</th><th>Meaning</th><th>Can be a verdict?</th></tr></thead>
+        <tbody>
+          <tr><td><code>ask</code></td><td>What the sender wants you to <em>do</em>, plain language (may be empty)</td><td class="no">No</td></tr>
+          <tr><td><code>tactics[]</code></td><td>Named tactic + one plain sentence each (may be empty)</td><td class="no">No</td></tr>
+          <tr><td><code>similarScams[]</code></td><td>0–3 real scam patterns in the same language</td><td class="no">No</td></tr>
+          <tr><td><code>pushesPhoneNumber</code></td><td>A re-checkable <em>hint</em> from the model — not the only gate</td><td class="no">No</td></tr>
+          <tr><td><em>calm next step</em></td><td colspan="2"><span class="yes">Static UI copy</span> — always shown, never model output</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <p class="lede"><strong>There is no <code>safe</code>, <code>isScam</code>, <code>confidence</code>, or score field anywhere.</strong> <code>additionalProperties:false</code> means even an unknown key is rejected at the provider. A verdict isn't just forbidden by a prompt — there is nowhere to write one.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>How the prompt-injection defense actually works</h2>
+    <div class="card">
+      <p class="lede" style="margin-bottom:14px">The pasted message is handed over as its <strong>own user-role message</strong> — never stitched into the system prompt and never dropped inside a delimiter it could close. It is the thing being watched, not an order being received.</p>
+      <table>
+        <thead><tr><th>Layer</th><th>What it stops</th></tr></thead>
+        <tbody>
+          <tr><td>Role separation (system vs user message)</td><td>"Ignore your rules"—style text is just content to analyze</td></tr>
+          <tr><td>No verdict field + <code>additionalProperties:false</code></td><td>An injected verdict has no slot, and unknown keys are rejected</td></tr>
+          <tr><td>Hard max lengths on every string</td><td>Dumping a paragraph of instructions into a two-sentence field</td></tr>
+          <tr><td>Attributed-text framing</td><td>A hijack saying "wire money" renders as a quote of <em>the message</em>, not the tool speaking</td></tr>
+          <tr><td><code>textContent</code> rendering</td><td>Model text never parsed as HTML or script</td></tr>
+          <tr><td>Static calm-next-step copy</td><td>The one protective line can't be suppressed by the model at all</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where it runs · files · failure modes</h2>
+    <div class="reveals">
+      <details class="def" open>
+        <summary><span>Where it runs &amp; how to try it</span><span><span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li>Modern browser. No Node needed to use it. Dev server for testing: <code>npx serve .</code></li>
+          <li>Live lookup needs a key: pasted by the visitor (kept in their browser) <em>or</em> a local gitignored <code>env.js</code></li>
+          <li><strong>No key → it says so, never a fake result.</strong></li>
+          <li>Demo: run locally with a key, paste a real scam text, show the breakdown, then open a "Previous finds" entry</li>
+          <li>Deployment optional. Public URL works only after a visitor adds their own key — deliberate and key-safe</li>
+        </ul>
+      </details>
+
+      <details class="def">
+        <summary><span>File structure</span><span><span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li style="border-top:0;padding-top:14px">
+<pre class="filetree">first-defense/
+├── index.html        # the single page (5 states)
+├── styles.css        # palette + the one accent color
+├── env.example.js    # safe to commit
+├── env.js            # YOUR key — GITIGNORED
+├── src/
+│   ├── app.js        # flow + rendering
+│   ├── api.js        # ONE provider file
+│   ├── schema.js     # validate + harden output
+│   ├── store.js      # history + key in localStorage
+│   └── phrases.js    # static content + fixed copy
+├── assets/favicon.svg
+├── devpost/          # the planning docs
+└── README.md</pre>
+          </li>
+        </ul>
+      </details>
+
+      <details class="risk">
+        <summary><span>Important failure modes</span><span><span class="count">7</span> <span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li>No key → state 4: explains, offers the key control, no fake result <span class="why">NO_KEY</span></li>
+          <li>Call fails / times out / CORS blocked → state 5: calm message + verification guidance <span class="why">NETWORK</span></li>
+          <li>Off-shape response → rejected; at most one retry; then state 5 <span class="why">OFF_SHAPE · bounded at two calls</span></li>
+          <li>Empty / nonsense input → asks for a message first <span class="why">EMPTY</span></li>
+          <li>Input too long → asks for a shorter message; nothing oversized is sent</li>
+          <li>localStorage corrupt → history starts empty, app keeps working</li>
+          <li>Instructions aimed at the tool → analyzed as evidence; six defense layers above apply</li>
+        </ul>
+      </details>
+
+      <details class="risk">
+        <summary><span>Open issues &amp; build-step 0</span><span><span class="count">4</span> <span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li><strong>Build-step 0, before any UI:</strong> make one real browser call to the provider — confirm CORS, current model name, structured-output parameter names. Evidence: a result rendered on the page. <span class="why">A CORS surprise would otherwise invalidate the architecture after the UI is built.</span></li>
+          <li>Model name, pricing, parameter names — unverified at spec time</li>
+          <li>On-screen copy for the "no ask, no tactic" case — settle during build</li>
+          <li>Concrete fonts and hex values — intent is fixed; build picks values</li>
+        </ul>
+      </details>
+
+      <details class="fix">
+        <summary><span>Caught by the pre-build review &amp; fixed</span><span><span class="count">14</span> <span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li>Default provider changed to <strong>Gemini</strong> (DeepSeek fallback) — OpenAI doesn't allow direct browser calls, so the original pick would have failed build-step 0</li>
+          <li>Pasted text sent as its own user message — no delimiter to break out of</li>
+          <li>Injection claim made honest and hardened; the guarantee is stated precisely</li>
+          <li>API-key entry UI added — the bring-your-own-key path now exists on screen</li>
+          <li>Five render states enumerated to match the PRD</li>
+          <li>Empty <code>ask</code> / <code>tactics</code> representable, with UI copy</li>
+          <li>Error codes defined and mapped</li>
+          <li><code>env.js</code> loaded via guarded dynamic import so a missing file doesn't 404 the module graph</li>
+          <li>Phone-number guidance no longer gated only on a model boolean; raw text re-checked</li>
+          <li>Retry reconciled with "one LLM call" — bounded at most one retry</li>
+          <li>Input length cap added</li>
+          <li>Storage shape fixed; UUID ids; label sanitization</li>
+          <li>Sidebar responsive behavior specified (toggle below ~800px)</li>
+          <li>PRD's "nothing else persists" clarified — the key is the one exception</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <h2>Honest gut check</h2>
+    <div class="verdict">
+      <div class="card">
+        <h3 class="vsharp">Sharp</h3>
+        <p style="margin:0">Every PRD behavior has a home, the file tree is real and small, and the injection story is now layered rather than a single claim — the calm next-step line being static copy is the cleanest part of the whole design.</p>
+      </div>
+      <div class="card">
+        <h3 class="vsoft">Still soft</h3>
+        <p style="margin:0">The provider choice is genuinely unverified: if neither Gemini nor DeepSeek allows the browser call, you'll add a serverless function. That's exactly why it's build-step 0. It's sized to a small proof of concept otherwise.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Canonical plan: <code>devpost/spec.md</code> · This page is the visual companion. Markdown stays authoritative; regenerate after any revision.</p>
+  </footer>
+
+</div>
+
+<script>
+  const STEPS = [
+    { h:"She opens the page", b:"app.js / store.js / phrases.js",
+      p:"index.html renders the paste box, the “Find out now” button, the general scam-phrase list, the API-key control, and the “Previous finds” sidebar. History comes out of localStorage; the static content comes from phrases.js; styling from styles.css." },
+    { h:"Paste &amp; press", b:"app.js",
+      p:"She pastes a message and presses “Find out now”. The page moves to the processing state and disables the button. Blank input stops here." },
+    { h:"Sent as data, not as orders", b:"api.js",
+      p:"api.js wraps the text as its own user-role message — it is never stitched into the system prompt or placed inside a delimiter. The system prompt says, in effect: this is untrusted text to examine. The provider is asked for a strict JSON shape. Key resolution: visitor’s key → local gitignored env.js → none." },
+    { h:"Validate before showing", b:"schema.js",
+      p:"schema.js checks the answer against the expected shape: unknown keys rejected, every string length-capped. Off-shape → at most one retry → then the honest error state. Nothing unvalidated ever reaches the screen." },
+    { h:"Render the breakdown", b:"app.js",
+      p:"The flat ask, the accent-colored tactic box, the matching scam patterns, and — if a number was pushed (re-checked against the raw text too) — the independent-number guidance. All model text is inserted with textContent and framed as what the message claims." },
+    { h:"Save it &amp; reset", b:"store.js",
+      p:"store.js appends the find (UUID id, short sanitized label, full result) to one localStorage array — nothing ever overwrites. The sidebar re-renders newest-first. “Have another?” returns to arrival, leaving history untouched." }
+  ];
+  const panel = document.getElementById('stepPanel');
+  const tabs = [...document.querySelectorAll('.steps button')];
+  function show(i){
+    tabs.forEach((t,j)=>t.setAttribute('aria-selected', j===i ? 'true':'false'));
+    const s = STEPS[i];
+    panel.innerHTML = '<h3>'+(i+1)+' · '+s.h+' <span class="badge">'+s.b+'</span></h3><p>'+s.p+'</p>';
+  }
+  tabs.forEach(t=>t.addEventListener('click',()=>show(+t.dataset.step)));
+  show(0);
+</script>
+</body>
+</html>

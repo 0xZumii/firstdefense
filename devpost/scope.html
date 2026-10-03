@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pause — Scope (visual companion)</title>
+<style>
+  :root{
+    --ink:#12161c;
+    --ink-soft:#4a5560;
+    --paper:#f7f5f1;
+    --card:#ffffff;
+    --line:#e2ded6;
+    --calm:#2f6f5e;
+    --calm-soft:#e6f0ec;
+    --warn:#a8641f;
+    --warn-soft:#f7ecdd;
+    --cut:#9a3b34;
+    --cut-soft:#f6e5e3;
+    --accent:#2b4a7a;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.6;
+    font-size:17px;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:40px 20px 96px}
+  .kicker{
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:600;margin:0 0 10px
+  }
+  h1{font-size:clamp(2.1rem,6vw,3rem);line-height:1.05;margin:0 0 6px;letter-spacing:-.02em}
+  .tagline{font-size:1.16rem;color:var(--ink-soft);margin:0 0 8px;max-width:60ch}
+  .title-note{
+    display:inline-block;font-size:.82rem;color:var(--warn);
+    background:var(--warn-soft);border:1px solid #ecd9bd;border-radius:999px;
+    padding:4px 12px;margin-top:6px
+  }
+  header{border-bottom:1px solid var(--line);padding-bottom:26px;margin-bottom:34px}
+
+  section{margin:0 0 44px}
+  h2{
+    font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;margin:0 0 14px
+  }
+  h3{font-size:1.05rem;margin:0 0 6px}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px 24px;box-shadow:0 1px 2px rgba(20,25,35,.03)
+  }
+  .card + .card{margin-top:12px}
+  .lede{font-size:1.08rem;margin:0}
+
+  .kernel{
+    border-left:5px solid var(--calm);
+    background:linear-gradient(0deg,var(--card),var(--card)) padding-box;
+  }
+  .kernel strong{color:var(--calm)}
+
+  /* ---- flow diagram ---- */
+  .diagram{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:26px 20px;overflow-x:auto
+  }
+  .flow{display:flex;align-items:stretch;gap:0;min-width:640px}
+  .node{
+    flex:1 1 0;min-width:150px;border:1.5px solid var(--line);border-radius:12px;
+    padding:14px 14px 16px;background:#fdfcfb;display:flex;flex-direction:column;justify-content:flex-start
+  }
+  .node .step{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px
+  }
+  .node .big{font-weight:700;font-size:.98rem;line-height:1.3;margin-bottom:6px}
+  .node .sub{font-size:.85rem;color:var(--ink-soft);line-height:1.45}
+  .node.user{border-color:#cfd6e2;background:#f5f8fd}
+  .node.in{border-color:#d9d3c7;background:#fbf9f5}
+  .node.engine{border-color:#bcd6cc;background:var(--calm-soft)}
+  .node.out{border-color:#e6cfae;background:var(--warn-soft)}
+  .node.out4{border-color:#cfd6e2;background:#f5f8fd}
+  .arrow{
+    flex:0 0 34px;display:flex;align-items:center;justify-content:center;
+    color:#b3aca0;font-size:1.3rem;font-weight:700
+  }
+  .loopnote{
+    margin-top:18px;font-size:.9rem;color:var(--ink-soft);
+    border-top:1px dashed var(--line);padding-top:14px;max-width:70ch
+  }
+
+  /* ---- output shape ---- */
+  .output-list{counter-reset:o;list-style:none;margin:0;padding:0}
+  .output-list li{
+    counter-increment:o;position:relative;padding:14px 0 14px 50px;
+    border-bottom:1px solid var(--line)
+  }
+  .output-list li:last-child{border-bottom:0}
+  .output-list li::before{
+    content:counter(o);position:absolute;left:0;top:12px;
+    width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem
+  }
+  .output-list .what{font-weight:700}
+  .output-list .why{display:block;color:var(--ink-soft);font-size:.9rem;margin-top:2px}
+  .quote{
+    font-family:var(--sans);background:#fbf9f5;border:1px solid var(--line);
+    border-radius:10px;padding:12px 15px;margin-top:9px;font-size:.95rem
+  }
+  .quote .say{color:var(--ink)}
+  .quote .src{display:block;font-family:var(--mono);font-size:.72rem;color:var(--ink-soft);margin-top:6px}
+
+  /* ---- who ---- */
+  .who{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:620px){.who{grid-template-columns:1fr}}
+  .who .card h3{display:flex;align-items:center;gap:8px}
+  .pill{
+    font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;
+    padding:3px 9px;border-radius:999px;white-space:nowrap
+  }
+  .pill.now{background:var(--calm-soft);color:var(--calm);border:1px solid #bcd6cc}
+  .pill.later{background:var(--warn-soft);color:var(--warn);border:1px solid #e6cfae}
+
+  /* ---- now / later / cut reveals ---- */
+  .reveals{display:flex;flex-direction:column;gap:10px}
+  details{
+    border:1px solid var(--line);border-radius:12px;background:var(--card);
+    overflow:hidden
+  }
+  details[open]{box-shadow:0 1px 3px rgba(20,25,35,.05)}
+  summary{
+    cursor:pointer;list-style:none;padding:15px 18px;font-weight:700;
+    display:flex;align-items:center;justify-content:space-between;gap:12px
+  }
+  summary::-webkit-details-marker{display:none}
+  summary .chev{transition:transform .18s ease;color:var(--ink-soft);font-weight:700}
+  details[open] summary .chev{transform:rotate(90deg)}
+  summary .count{
+    font-family:var(--mono);font-size:.75rem;color:var(--ink-soft);font-weight:600
+  }
+  details.now summary{border-left:5px solid var(--calm)}
+  details.later summary{border-left:5px solid var(--warn)}
+  details.cut summary{border-left:5px solid var(--cut)}
+  .items{padding:0 18px 16px 18px;margin:0;list-style:none}
+  .items li{
+    padding:11px 0 11px 24px;border-top:1px solid var(--line);
+    position:relative;font-size:.95rem
+  }
+  .items li::before{position:absolute;left:0;top:12px;font-weight:700}
+  details.now .items li::before{content:"✓";color:var(--calm)}
+  details.later .items li::before{content:"→";color:var(--warn)}
+  details.cut .items li::before{content:"✕";color:var(--cut)}
+  .items .why{display:block;color:var(--ink-soft);font-size:.86rem;margin-top:3px}
+
+  /* ---- never-says-safe callout ---- */
+  .rule{
+    border:1.5px solid var(--cut);background:var(--cut-soft);border-radius:14px;
+    padding:20px 22px
+  }
+  .rule h3{color:var(--cut);margin-bottom:8px}
+  .rule p{margin:0;font-size:.98rem}
+  .rule .never{
+    display:inline-block;font-family:var(--mono);font-size:.8rem;background:#fff;
+    border:1px solid #e0b7b2;color:var(--cut);border-radius:6px;padding:2px 7px;margin:0 2px
+  }
+
+  /* ---- risk ---- */
+  .risk{border-left:5px solid var(--warn)}
+  .risk h3{color:var(--warn)}
+
+  footer{
+    border-top:1px solid var(--line);padding-top:20px;color:var(--ink-soft);
+    font-size:.85rem
+  }
+  footer code{font-family:var(--mono);font-size:.8rem}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">Devpost Learn · Scope</p>
+    <h1>First Defense</h1>
+    <p class="tagline">Paste a suspicious message. Get the plain-language version of what it's really asking you to do — and the pressure tactic it's using. Never told "safe" or "unsafe."</p>
+    <span class="title-note">Renamed from "Pause" — approved</span>
+  </header>
+
+  <section>
+    <h2>The Unique Kernel</h2>
+    <div class="card kernel">
+      <p class="lede">It <strong>refuses to give a verdict</strong>. Instead of chatbot prose, it returns the same predictable shape every time: the ask restated in flat, plain language, the manipulation tactic named, and a short list of real scams using that same language.</p>
+    </div>
+    <div class="card">
+      <p class="lede" style="margin:0">Delete the <strong>"never says safe"</strong> rule and the <strong>fixed output shape</strong>, and this is just ChatGPT with a text box. Both are the point.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it flows</h2>
+    <div class="diagram">
+      <div class="flow">
+        <div class="node user">
+          <span class="step">1 · who</span>
+          <span class="big">Mom or grandparent</span>
+          <span class="sub">Got a text that feels off. Doesn't know how to prompt an AI.</span>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node in">
+          <span class="step">2 · input</span>
+          <span class="big">Paste the message</span>
+          <span class="sub">One big box. One button. Pasted text only.</span>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node engine">
+          <span class="step">3 · engine</span>
+          <span class="big">Translate, don't judge</span>
+          <span class="sub">One LLM call, locked to a fixed structure. Ignores instructions hidden in the message.</span>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node out">
+          <span class="step">4 · output</span>
+          <span class="big">Flat ask + named tactic</span>
+          <span class="sub">The message's power to panic you, spelled out.</span>
+        </div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="node out4">
+          <span class="step">5 · back</span>
+          <span class="big">Calm next step</span>
+          <span class="sub">Slow down. Verify via a number you look up yourself.</span>
+        </div>
+      </div>
+      <p class="loopnote"><strong>The loop:</strong> scams keep arriving, so they come back the next time a message feels wrong. No account, no chat, no follow-up prompting — one shot, in the moment, alone.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>What comes back — always the same shape</h2>
+    <div class="card">
+      <ol class="output-list">
+        <li>
+          <span class="what">The plain version of the ask</span>
+          <span class="why">What they actually want you to <em>do</em>.</span>
+          <div class="quote"><span class="say">"They want you to send $400 in gift cards and read them the numbers."</span></div>
+        </li>
+        <li>
+          <span class="what">The tactic the message is using</span>
+          <span class="why">The thing making you feel rushed or scared.</span>
+          <div class="quote"><span class="say">"This message uses urgency and fear to rush you."</span></div>
+        </li>
+        <li>
+          <span class="what">A few real scam patterns that look like this one</span>
+          <span class="why">So the pattern sticks for next time.</span>
+        </li>
+        <li>
+          <span class="what">One calm reminder</span>
+          <span class="why">Don't act under pressure. Verify through a number you look up yourself.</span>
+        </li>
+      </ol>
+      <div class="quote" style="margin-top:14px;border-color:#bcd6cc;background:var(--calm-soft)">
+        <span class="say"><strong>The "oh, that's the thing" moment:</strong> the ask appears flattened into boring plain language right next to the named tactic — the message's power to panic you visibly drains out of it.</span>
+        <span class="src">Beat to capture in the 1–3 minute demo video</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Who it's for</h2>
+    <div class="who">
+      <div class="card">
+        <h3><span class="pill now">Now</span> The target user</h3>
+        <p style="margin:0">The learner's <strong>mom and grandparents</strong> — older, non-technical people who are the prime targets of fake-financial social engineering: fake delivery fees, "your account is locked," tech-support calls, gift-card and romance scams.</p>
+      </div>
+      <div class="card">
+        <h3><span class="pill now">Today</span> What they do instead</h3>
+        <p style="margin:0">Take the message at face value, or forward it to a family member and hope someone answers. This tool has to be usable <strong>by them, alone, in the moment</strong> — not something that needs someone else to explain it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Now · Later · Cut</h2>
+    <div class="reveals">
+      <details class="now" open>
+        <summary><span>In the proof of concept</span><span><span class="count">6 items</span> <span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li>One page, one large paste box, one button</li>
+          <li><strong>Pasted text only</strong> as input</li>
+          <li>Fixed output structure: flat ask → named tactic(s) → matching scam examples → one calm action reminder</li>
+          <li>Works on a phone-sized screen</li>
+          <li><strong>Never emits a safe/unsafe verdict</strong></li>
+          <li>One LLM call with a guardrail that holds the output shape and resists instructions hidden inside the pasted message</li>
+        </ul>
+      </details>
+
+      <details class="later">
+        <summary><span>Worth doing, not now</span><span><span class="count">6 items</span> <span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li>Link handling — show the URL, flag a suspicious domain (string analysis only)</li>
+          <li>Screenshot / image input (OCR)</li>
+          <li>Transaction and wallet-approval scanning <span class="why">The web3 angle</span></li>
+          <li>Read-aloud and translation</li>
+          <li>Saved history</li>
+          <li>A "share with my family" option</li>
+        </ul>
+      </details>
+
+      <details class="cut">
+        <summary><span>Explicitly cut</span><span><span class="count">4 items</span> <span class="chev">›</span></span></summary>
+        <ul class="items">
+          <li>Any safe/unsafe verdict <span class="why">Deliberate and central: false positives and false negatives would both hurt users and destroy trust.</span></li>
+          <li>Fetching and rendering arbitrary pasted links <span class="why">A separate attack surface and a build-time sink; not needed to prove the kernel.</span></li>
+          <li>Accounts, chat history, follow-up prompting <span class="why">The product is one-shot and prompt-free by design.</span></li>
+          <li>Transaction scanning <span class="why">Web3 scope; interesting later, adds nothing to the core proof.</span></li>
+        </ul>
+      </details>
+    </div>
+  </section>
+
+  <section>
+    <div class="rule">
+      <h3>The rule that gives it a spine</h3>
+      <p>It never says <span class="never">this is safe</span> or <span class="never">this is a scam</span>. False negatives and false positives both exist. A better-informed user is more powerful than one taking things at face value — so the tool translates and educates instead of ruling.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why this matters</h2>
+    <div class="card">
+      <p style="margin:0 0 12px">Security is what excites the learner: <em>"i love helping people and the internet is a better place when users are protected."</em> Scams and cybercrime are rising fast because AI lets threat actors vibe-code malware and phishing sites cheaply — while the people being targeted are the ones least equipped to spot it.</p>
+      <p style="margin:0">A junior in the security field focused on web3 best practices for keeping funds and personal information safe, they want this to be a <strong>first layer of defense for people who have nothing else to rely on</strong>.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Honest gut check</h2>
+    <div class="card">
+      <h3 style="color:var(--calm)">Sharp</h3>
+      <p style="margin:0 0 14px">The <em>never-says-safe</em> rule gives the tool a spine and answers the learner's own goal about output security. Fixing the user to mom and grandparents makes the demo land. Cutting link-fetching is correct.</p>
+      <h3 style="color:var(--warn)">Still soft</h3>
+      <p style="margin:0">The name is a placeholder, look-and-feel is only a mood until the PRD, and the guardrail against a scammer hiding instructions inside the message is <strong>stated but unproven</strong>. That's the riskiest claim in the plan — the spec needs to take it seriously.</p>
+    </div>
+    <div class="card risk">
+      <h3>Open risk carried into the PRD &amp; spec</h3>
+      <p style="margin:0">A scam decoder that can be <em>talked out of doing its job</em> by text hidden in the pasted message is worse than no tool at all. How untrusted input is isolated, and how the output is validated, is likely the single most important design decision in the build.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Canonical plan: <code>devpost/scope.md</code> · This page is the visual companion. Markdown stays authoritative; regenerate this companion after any revision.</p>
+  </footer>
+
+</div>
+</body>
+</html>
