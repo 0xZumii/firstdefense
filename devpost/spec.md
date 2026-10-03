@@ -93,6 +93,9 @@ Step by step:
 - **Demo recording for submission:** start the local server, use a real key, paste a real scam text, press "Find out now," show the breakdown, then open a "Previous finds" entry to show history. Capture the beat described in `prd.md > The Core Journey`.
 - **Deployment:** optional. If deployed, the public URL works for a visitor **only after they paste their own key**; cold with no key it explains itself. This is deliberate — see `Decisions and Open Issues`.
 
+- **Public repository (published):** https://github.com/0xZumii/firstdefense
+  Published during `6-ship`. Dev-only diagnostics (`probe.html`, `keycheck.html`) were removed before publishing; `injection-test.html` was kept as security evidence. `devpost/learner-profile.md` and `env.js` are ignored and were confirmed not public. No secret appears in any tracked file or in git history.
+
 ## Look and Feel
 
 Carried forward from `prd.md > Look and Feel` and `scope.md > Inspiration & Identity`. Direction the build must honor:
