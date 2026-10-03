@@ -24,3 +24,7 @@ Thumbs.db
 /.agents/
 /.claude/
 /agent/
+
+# Dev-only diagnostics - not part of the shipped app
+/probe.html
+/keycheck.html
