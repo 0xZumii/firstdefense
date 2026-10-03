@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Open the page on your phone or narrow the window, paste any text, press "Find out now", and tell me whether it feels soft, official, and trustworthy — and whether your eye goes to the accent tactic box.
   Commit: `Add page shell, look and feel, and sample breakdown`
 
-- [ ] **2. The breakdown is real**
+- [x] **2. The breakdown is real**
   Becomes usable: Pressing "Find out now" sends the pasted message to the model and renders the actual `ask`, `tactics`, `similarScams`, and conditional phone-number guidance. The fixed calm next-step copy is always shown.
   Why now: This is the unique kernel. It lands on the finished page and turns the sample into the product. Everything after this is hardening and history.
   PRD ref: `prd.md > The breakdown`, `prd.md > Phone-number guidance`, `prd.md > States and Boundaries`
@@ -92,4 +92,6 @@ Activity mode: [pending build]
 
 ## Revisions
 
-- Phone-number re-check required an actual number, and the guidance copy was de-banked — the slice-2 hands-on test on a real marketing DM showed the looser pattern matched phrases like "contact us" and displayed phone guidance on a message that mentioned no number, with copy that assumed a bank.
+- Phone-number re-check required an actual number, and the guidance copy was de-banked - the slice-2 hands-on test on a real marketing DM showed the looser pattern matched phrases like "contact us" and displayed phone guidance on a message that mentioned no number, with copy that assumed a bank.
+- "Previous finds" was never written to storage - the slice-2 hands-on review found that completed finds vanished, because slice 2 wired the model call but shipped before the store was called; saving was pulled forward from slice 4 into the successful path (`addFind` in `app.js`), verified across reload and browser restart.
+- All source normalized to ASCII - the build discovered mis-encoded dashes and quotes (UTF-8 read as Windows-1252) in several source files; replaced with plain ASCII so the copy renders the same everywhere.

@@ -1,9 +1,9 @@
 /**
- * store.js — everything that lives in the browser's own storage.
+ * store.js  -  everything that lives in the browser's own storage.
  *
  * Two things only:
- *   firstdefense.find — the append-only list of previous finds (nothing overwrites)
- *   firstdefense.key  — the visitor's pasted API key (the one documented exception
+ *   firstdefense.find  -  the append-only list of previous finds (nothing overwrites)
+ *   firstdefense.key   -  the visitor's pasted API key (the one documented exception
  *                       to the PRD's "nothing else persists")
  *
  * Spec ref: spec.md > Components > store.js, spec.md > Data Model
@@ -68,10 +68,10 @@ export function hasKey() {
 
 /* ---------- previous finds ---------- */
 
-/** Short, single-line label from the pasted message — for the sidebar row. */
+/** Short, single-line label from the pasted message  -  for the sidebar row. */
 export function makeLabel(message) {
   const flat = String(message || '').replace(/\s+/g, ' ').trim();
-  return flat.length > 40 ? flat.slice(0, 40).trimEnd() + '…' : flat;
+  return flat.length > 40 ? flat.slice(0, 40).trimEnd() + '...' : flat;
 }
 
 /** Newest-first list. Never throws; returns [] on any problem. */

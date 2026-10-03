@@ -1,5 +1,5 @@
 /**
- * api.js — the ONE provider-specific file.
+ * api.js  -  the ONE provider-specific file.
  *
  * Everything that knows we are talking to Google Gemini lives here. Swapping to
  * DeepSeek or a local model later means editing only this file.
@@ -81,7 +81,7 @@ export async function analyze(messageText) {
   const body = {
     systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
     contents: [
-      // The pasted message is its OWN user message — never inside the system prompt.
+      // The pasted message is its OWN user message  -  never inside the system prompt.
       { role: 'user', parts: [{ text: message }] }
     ],
     generationConfig: {

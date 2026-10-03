@@ -1,14 +1,14 @@
 /* ============================================================
-   First Defense — styling
+   First Defense  -  styling
    Direction (spec.md > Look and Feel): soft, official, trustworthy.
-   Like a bank statement or a well-made medical leaflet — not a
+   Like a bank statement or a well-made medical leaflet  -  not a
    hacking tool, not a flashing alarm. Large readable type, generous
    space, neutral palette, and ONE calm accent color reserved for the
    tactic box. No red alarms, no threat scores, no confidence meters.
    ============================================================ */
 
 :root{
-  /* palette — soft, paper-like, no saturated alarms */
+  /* palette  -  soft, paper-like, no saturated alarms */
   --paper:      #f6f4f0;
   --card:       #ffffff;
   --card-soft:  #fbfaf7;
@@ -18,7 +18,7 @@
   --line:       #e3dfd7;
   --line-strong:#d3cec3;
 
-  /* the single accent — used ONLY for the tactic box and its heading */
+  /* the single accent  -  used ONLY for the tactic box and its heading */
   --accent:      #2e6b5e;
   --accent-soft: #e7f0ed;
   --accent-line: #bcd6cc;
@@ -212,7 +212,7 @@ body{
 }
 .scam-list li:first-child{ border-top: 0; padding-top: 0; }
 .scam-list li::before{
-  content: "—"; position: absolute; left: 0; color: var(--ink-faint);
+  content: " - "; position: absolute; left: 0; color: var(--ink-faint);
 }
 .result-next{ background: var(--card-soft); }
 .result-next p{ margin: 0; font-size: .98rem; }

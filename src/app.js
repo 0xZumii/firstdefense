@@ -1,5 +1,5 @@
 /**
- * app.js — flow and rendering for First Defense.
+ * app.js  -  flow and rendering for First Defense.
  *
  * Slice 2: the real breakdown. Pressing "Find out now" now sends the pasted
  * message to the model through api.js, validates it through schema.js, and
@@ -19,10 +19,10 @@ import {
 } from './phrases.js';
 import { analyze, ERROR, MAX_INPUT_CHARS } from './api.js';
 import { textPushesPhoneNumber } from './schema.js';
-import { getKey, saveKey, forgetKey, hasKey } from './store.js';
+import { getKey, saveKey, forgetKey, hasKey, addFind, getFinds } from './store.js';
 
 /* ------------------------------------------------------------------ *
- * Tiny helpers — every model-derived string goes in with textContent,
+ * Tiny helpers  -  every model-derived string goes in with textContent,
  * never innerHTML. Nothing from a message is ever parsed as markup.
  * ------------------------------------------------------------------ */
 const el = (id) => document.getElementById(id);
@@ -31,7 +31,7 @@ const clear = (node) => { node.replaceChildren(); };
 
 /* ------------------------------------------------------------------ *
  * Render states (spec.md > Components > The page shell):
- *   1 arrival · 2 processing · 3 result · 4 no-key · 5 error
+ *   1 arrival ? 2 processing ? 3 result ? 4 no-key ? 5 error
  * ------------------------------------------------------------------ */
 const STATES = {
   FIND: 'stateFind',
@@ -55,14 +55,61 @@ function setProcessing(on) {
 }
 
 /* ------------------------------------------------------------------ *
- * Rendering a result (prd.md > The breakdown — fixed shape, same order)
+ * Previous finds sidebar (prd.md > Previous finds)
+ * ------------------------------------------------------------------ */
+function formatWhen(ts) {
+  try {
+    const d = new Date(ts);
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) +
+      ' ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+}
+
+function renderSidebar(selectedId = null) {
+  const finds = getFinds();
+  const list = el('sidebarList');
+  clear(list);
+
+  el('sidebarEmpty').hidden = finds.length > 0;
+
+  for (const find of finds) {
+    const li = document.createElement('li');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sidebar-item' + (find.id === selectedId ? ' selected' : '');
+    btn.dataset.findId = find.id;
+
+    const label = document.createElement('span');
+    label.className = 'sidebar-label';
+    setText(label, find.label || '(no text)');
+
+    const when = document.createElement('span');
+    when.className = 'sidebar-when';
+    setText(when, formatWhen(find.createdAt));
+
+    btn.append(label, when);
+    btn.addEventListener('click', () => {
+      renderResult(find.result, { rawMessage: find.message });
+      renderSidebar(find.id);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    li.appendChild(btn);
+    list.appendChild(li);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Rendering a result (prd.md > The breakdown  -  fixed shape, same order)
  * ------------------------------------------------------------------ */
 function renderResult(result, { rawMessage = '', sample = false } = {}) {
   // 1. the flat ask
   const ask = (result.ask || '').trim();
   setText(el('askText'), ask || NO_ASK_TEXT);
 
-  // 2. the tactic(s) — the one accent-colored block (static UI, model text only)
+  // 2. the tactic(s)  -  the one accent-colored block (static UI, model text only)
   const tactics = Array.isArray(result.tactics) ? result.tactics : [];
   const tacticList = el('tacticList');
   clear(tacticList);
@@ -93,7 +140,7 @@ function renderResult(result, { rawMessage = '', sample = false } = {}) {
   clear(scamList);
   if (scams.length === 0) {
     const li = document.createElement('li');
-    setText(li, 'No close match found in our examples — which does not make the message safe.');
+    setText(li, 'No close match found in our examples  -  which does not make the message safe.');
     scamList.appendChild(li);
   } else {
     for (const s of scams) {
@@ -103,19 +150,19 @@ function renderResult(result, { rawMessage = '', sample = false } = {}) {
     }
   }
 
-  // 4. independent-number guidance — shown if the model flagged it OR the raw text
+  // 4. independent-number guidance  -  shown if the model flagged it OR the raw text
   //    clearly contains one. The second check means a scrambled model answer can't
   //    silently hide the one protective line. Copy is static (phrases.js).
   const showsPhone = Boolean(result.pushesPhoneNumber) || textPushesPhoneNumber(rawMessage);
   el('phoneGuidance').hidden = !showsPhone;
   setText(el('phoneGuidanceText'), PHONE_GUIDANCE_TEXT);
 
-  // 5. the calm next step — always shown, never model text
+  // 5. the calm next step  -  always shown, never model text
   setText(el('nextStepText'), NEXT_STEP_TEXT);
 
   const flag = el('sampleFlag');
   flag.hidden = !sample;
-  if (sample) setText(flag, 'Sample breakdown — fixed example text, not your message.');
+  if (sample) setText(flag, 'Sample breakdown  -  fixed example text, not your message.');
 
   showState(STATES.RESULT);
 }
@@ -177,7 +224,7 @@ function closeKeyBar() {
   el('keyToggle').setAttribute('aria-expanded', 'false');
 }
 function refreshKeySummary() {
-  setText(el('keySummary'), hasKey() ? 'Your key is set — click to replace' : 'Use your own key');
+  setText(el('keySummary'), hasKey() ? 'Your key is set  -  click to replace' : 'Use your own key');
 }
 function handleSaveKey() {
   const value = el('keyInput').value.trim();
@@ -209,7 +256,9 @@ async function runFind() {
   setProcessing(true);
   try {
     const result = await analyze(text);
+    const saved = addFind(text, result);   // append-only; nothing overwritten
     renderResult(result, { rawMessage: text });
+    renderSidebar(saved ? saved.id : null);
   } catch (e) {
     const code = e && e.code ? e.code : ERROR.NETWORK;
     if (code === ERROR.NO_KEY) showNoKey();
@@ -225,6 +274,7 @@ async function runFind() {
 function init() {
   renderPhrases();
   refreshKeySummary();
+  renderSidebar();
   el('sidebarInner').hidden = window.matchMedia('(max-width: 1039px)').matches;
 
   el('keyToggle').addEventListener('click', () => {

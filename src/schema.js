@@ -1,10 +1,10 @@
 /**
- * schema.js — validates and hardens model output before anything is shown.
+ * schema.js  -  validates and hardens model output before anything is shown.
  *
  * This is not decoration. It is the enforcement point for the product's central
  * rule: no verdict ever renders. The shape below has no field a verdict could
  * live in, and unknown keys are rejected here (the provider does not enforce
- * additionalProperties for us — see spec.md > Stack).
+ * additionalProperties for us  -  see spec.md > Stack).
  *
  * Spec ref: spec.md > Components > schema.js, spec.md > The Result Shape
  * PRD ref:  prd.md > The breakdown, prd.md > States and Boundaries
@@ -37,7 +37,7 @@ export function validateResult(raw) {
     throw new ShapeError('Result was not an object.');
   }
 
-  // Reject unknown keys — including any verdict-shaped key someone tried to inject.
+  // Reject unknown keys  -  including any verdict-shaped key someone tried to inject.
   const allowed = new Set(['ask', 'tactics', 'similarScams', 'pushesPhoneNumber']);
   for (const key of Object.keys(raw)) {
     if (!allowed.has(key)) {
