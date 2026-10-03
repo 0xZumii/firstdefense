@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Open `probe.html`, press the probe button, and see a real answer come back from the model with your own key. Tell me whether the raw JSON looks like the shape the spec promised.
   Commit: `Add provider probe and confirm browser call works`
 
-- [ ] **1. The page exists: paste, press, see a breakdown**
+- [x] **1. The page exists: paste, press, see a breakdown**
   Becomes usable: The real single page, styled soft/official/trustworthy, with the paste box, the "Find out now" button, the general scam-phrase list, the empty sidebar, and the bring-your-own-key control. Pressing the button shows a clearly-labeled sample breakdown. Nothing persists and no model is called yet.
   Why now: The visible core journey and the look must exist before the model is wired in, so the kernel lands on a page that already works instead of last. This is the earliest the "oh, that's the thing" beat can be seen.
   PRD ref: `prd.md > Screens and Layout`, `prd.md > The Core Journey` (steps 1-2, 4-5), `prd.md > Look and Feel`
@@ -92,3 +92,4 @@ Activity mode: [pending build]
 
 ## Revisions
 
+- Phone-number re-check required an actual number, and the guidance copy was de-banked — the slice-2 hands-on test on a real marketing DM showed the looser pattern matched phrases like "contact us" and displayed phone guidance on a message that mentioned no number, with copy that assumed a bank.

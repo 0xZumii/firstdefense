@@ -1,10 +1,9 @@
 /**
  * app.js — flow and rendering for First Defense.
  *
- * Slice 1 scope: the page shell, the look and feel, the two main render states,
- * the key control UI, and the always-visible phrase list. Pressing "Find out now"
- * shows a clearly-labelled SAMPLE breakdown. No model call yet — that lands in
- * slice 2 (api.js + schema.js) and slice 4 (store.js + real history).
+ * Slice 2: the real breakdown. Pressing "Find out now" now sends the pasted
+ * message to the model through api.js, validates it through schema.js, and
+ * renders it. All error states are wired.
  *
  * Spec ref: spec.md > Components > The page shell, spec.md > Components > app.js
  * PRD ref:  prd.md > Screens and Layout, prd.md > The Core Journey
@@ -14,29 +13,25 @@ import {
   GENERAL_PHRASES,
   NEXT_STEP_TEXT,
   PHONE_GUIDANCE_TEXT,
+  ERROR_COPY,
   NO_ASK_TEXT,
-  NO_TACTICS_TEXT,
-  SAMPLE_RESULT
+  NO_TACTICS_TEXT
 } from './phrases.js';
+import { analyze, ERROR, MAX_INPUT_CHARS } from './api.js';
+import { textPushesPhoneNumber } from './schema.js';
+import { getKey, saveKey, forgetKey, hasKey } from './store.js';
 
 /* ------------------------------------------------------------------ *
  * Tiny helpers — every model-derived string goes in with textContent,
  * never innerHTML. Nothing from a message is ever parsed as markup.
  * ------------------------------------------------------------------ */
-export const el = (id) => document.getElementById(id);
-
-function setText(node, text) {
-  node.textContent = text;
-}
-
-function clear(node) {
-  node.replaceChildren();
-}
+const el = (id) => document.getElementById(id);
+const setText = (node, text) => { node.textContent = text; };
+const clear = (node) => { node.replaceChildren(); };
 
 /* ------------------------------------------------------------------ *
- * Six render states, matching spec.md > Components > The page shell.
+ * Render states (spec.md > Components > The page shell):
  *   1 arrival · 2 processing · 3 result · 4 no-key · 5 error
- * (state 6 is the sidebar, always in the DOM)
  * ------------------------------------------------------------------ */
 const STATES = {
   FIND: 'stateFind',
@@ -45,30 +40,29 @@ const STATES = {
   ERROR: 'stateError'
 };
 
-let currentState = STATES.FIND;
-let currentResult = null;
+let inputLocked = false;
 
-export function showState(name) {
-  currentState = name;
-  for (const id of Object.values(STATES)) {
-    el(id).hidden = (id !== name);
-  }
-  // "Have another?" only makes sense once there is a result on screen.
+function showState(name) {
+  for (const id of Object.values(STATES)) el(id).hidden = (id !== name);
   el('haveAnotherBtn').hidden = (name !== STATES.RESULT);
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setProcessing(on) {
+  el('processing').hidden = !on;
+  el('findBtn').disabled = on;
+  inputLocked = on;
 }
 
 /* ------------------------------------------------------------------ *
  * Rendering a result (prd.md > The breakdown — fixed shape, same order)
  * ------------------------------------------------------------------ */
-export function renderResult(result, { sample = false } = {}) {
-  currentResult = result;
-
+function renderResult(result, { rawMessage = '', sample = false } = {}) {
   // 1. the flat ask
   const ask = (result.ask || '').trim();
   setText(el('askText'), ask || NO_ASK_TEXT);
 
-  // 2. the tactic(s) — the one accent-colored block
+  // 2. the tactic(s) — the one accent-colored block (static UI, model text only)
   const tactics = Array.isArray(result.tactics) ? result.tactics : [];
   const tacticList = el('tacticList');
   clear(tacticList);
@@ -109,33 +103,47 @@ export function renderResult(result, { sample = false } = {}) {
     }
   }
 
-  // 4. conditional independent-number guidance (static copy, never model text)
-  const phoneBlock = el('phoneGuidance');
-  phoneBlock.hidden = !result.pushesPhoneNumber;
+  // 4. independent-number guidance — shown if the model flagged it OR the raw text
+  //    clearly contains one. The second check means a scrambled model answer can't
+  //    silently hide the one protective line. Copy is static (phrases.js).
+  const showsPhone = Boolean(result.pushesPhoneNumber) || textPushesPhoneNumber(rawMessage);
+  el('phoneGuidance').hidden = !showsPhone;
   setText(el('phoneGuidanceText'), PHONE_GUIDANCE_TEXT);
 
-  // 5. the calm next step — always shown
+  // 5. the calm next step — always shown, never model text
   setText(el('nextStepText'), NEXT_STEP_TEXT);
 
-  // honest label for the not-yet-real slice
   const flag = el('sampleFlag');
   flag.hidden = !sample;
-  setText(flag, 'Sample breakdown — live reading arrives in the next build step. This is fixed example text, not your message.');
+  if (sample) setText(flag, 'Sample breakdown — fixed example text, not your message.');
 
   showState(STATES.RESULT);
 }
 
 /* ------------------------------------------------------------------ *
- * Error / no-key states (fully wired in slice 2)
+ * Error / no-key states
  * ------------------------------------------------------------------ */
-export function showError(message) {
+function showError(message) {
   setText(el('errorText'), message);
   showState(STATES.ERROR);
 }
 
-export function showNoKey() {
+function showNoKey() {
   showState(STATES.NO_KEY);
   openKeyBar();
+}
+
+function copyForError(code) {
+  switch (code) {
+    case ERROR.NO_KEY: return ERROR_COPY.NO_KEY;
+    case ERROR.EMPTY: return ERROR_COPY.EMPTY;
+    case ERROR.TOO_LONG:
+      return `That message is very long (over ${MAX_INPUT_CHARS.toLocaleString()} characters). ` +
+             'Paste just the part that is asking you to do something.';
+    case ERROR.NETWORK: return ERROR_COPY.NETWORK;
+    case ERROR.OFF_SHAPE:
+    default: return ERROR_COPY.OFF_SHAPE;
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -158,16 +166,57 @@ function renderPhrases() {
 }
 
 /* ------------------------------------------------------------------ *
- * Key control (storage wiring arrives in slice 4)
+ * Key control
  * ------------------------------------------------------------------ */
 function openKeyBar() {
   el('keyBody').hidden = false;
   el('keyToggle').setAttribute('aria-expanded', 'true');
 }
-
 function closeKeyBar() {
   el('keyBody').hidden = true;
   el('keyToggle').setAttribute('aria-expanded', 'false');
+}
+function refreshKeySummary() {
+  setText(el('keySummary'), hasKey() ? 'Your key is set — click to replace' : 'Use your own key');
+}
+function handleSaveKey() {
+  const value = el('keyInput').value.trim();
+  if (!value) { setText(el('keyStatus'), 'Paste a key first.'); return; }
+  if (saveKey(value)) {
+    setText(el('keyStatus'), 'Saved in this browser.');
+    el('keyInput').value = '';
+    refreshKeySummary();
+  } else {
+    setText(el('keyStatus'), 'Could not save the key in this browser.');
+  }
+}
+function handleForgetKey() {
+  forgetKey();
+  el('keyInput').value = '';
+  setText(el('keyStatus'), 'Key removed.');
+  refreshKeySummary();
+}
+
+/* ------------------------------------------------------------------ *
+ * The core action
+ * ------------------------------------------------------------------ */
+async function runFind() {
+  const text = el('messageInput').value.trim();
+
+  if (!text) { showError(copyForError(ERROR.EMPTY)); return; }
+  if (!hasKey()) { showNoKey(); return; }
+
+  setProcessing(true);
+  try {
+    const result = await analyze(text);
+    renderResult(result, { rawMessage: text });
+  } catch (e) {
+    const code = e && e.code ? e.code : ERROR.NETWORK;
+    if (code === ERROR.NO_KEY) showNoKey();
+    else showError(copyForError(code));
+  } finally {
+    setProcessing(false);
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -175,14 +224,15 @@ function closeKeyBar() {
  * ------------------------------------------------------------------ */
 function init() {
   renderPhrases();
+  refreshKeySummary();
   el('sidebarInner').hidden = window.matchMedia('(max-width: 1039px)').matches;
 
-  // collapse / expand the key bar
   el('keyToggle').addEventListener('click', () => {
     if (el('keyBody').hidden) openKeyBar(); else closeKeyBar();
   });
+  el('saveKeyBtn').addEventListener('click', handleSaveKey);
+  el('forgetKeyBtn').addEventListener('click', handleForgetKey);
 
-  // collapse / expand the sidebar on small screens
   el('sidebarToggle').addEventListener('click', () => {
     if (window.matchMedia('(max-width: 1039px)').matches) {
       const inner = el('sidebarInner');
@@ -191,18 +241,13 @@ function init() {
     }
   });
 
-  // the one call to action
-  el('findBtn').addEventListener('click', () => {
-    const text = el('messageInput').value.trim();
-    if (!text) {
-      showError('There was no message to look at. Paste the text you received, then try again.');
-      return;
-    }
-    // SLICE 1: no model call yet — show the clearly-labelled sample.
-    renderResult(SAMPLE_RESULT, { sample: true });
+  el('findBtn').addEventListener('click', () => { if (!inputLocked) runFind(); });
+
+  // Ctrl/Cmd + Enter inside the box is a fast path to "Find out now"
+  el('messageInput').addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !inputLocked) runFind();
   });
 
-  // reset to arrival; history is untouched (real history in slice 4)
   el('haveAnotherBtn').addEventListener('click', () => {
     el('messageInput').value = '';
     showState(STATES.FIND);
@@ -214,5 +259,4 @@ function init() {
 
 document.addEventListener('DOMContentLoaded', init);
 
-/* exported for slice 2 so api/schema code can drive the same render path */
-export { init };
+export { renderResult, showState };

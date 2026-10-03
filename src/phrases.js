@@ -54,12 +54,13 @@ export const NEXT_STEP_TEXT =
 /**
  * Independent-verification guidance. Shown when a message pushes a phone number
  * (spec.md > The Result Shape — never gated *only* on the model's boolean; app.js
- * also re-checks the raw text for number patterns).
+ * also re-checks the raw text for number patterns, and that check now requires
+ * an actual number so this box doesn't appear on messages that don't mention one).
  */
 export const PHONE_GUIDANCE_TEXT =
   'Some scams copy real logos, email addresses, and phone numbers perfectly. The only number you can trust is ' +
-  'one you look up yourself — visit the company’s website directly, or call the number on the back of your card. ' +
-  'Never call a number that came in the message.';
+  'one you look up yourself — check the company’s own website, your bank card, or your account statement, and ' +
+  'call that number. Never call or message a number that came in the message itself.';
 
 /** Error-state copy, mapped from the error codes in api.js. */
 export const ERROR_COPY = {
