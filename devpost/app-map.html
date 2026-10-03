@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First Defense - App Map</title>
+<style>
+  :root{
+    --ink:#1c2128; --soft:#5a636d; --faint:#8a929b; --paper:#f6f4f0; --card:#fff;
+    --line:#e3dfd7; --accent:#2e6b5e; --accent-soft:#e7f0ed; --accent-line:#bcd6cc;
+    --action:#2b4a7a; --action-soft:#e8eef8;
+    --mono:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.6;font-size:16px}
+  .wrap{max-width:840px;margin:0 auto;padding:40px 20px 90px}
+  .kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);font-weight:700;margin:0 0 8px}
+  h1{font-size:clamp(1.9rem,5vw,2.5rem);margin:0 0 6px;letter-spacing:-.02em}
+  .lede{font-size:1.08rem;color:var(--soft);margin:0;max-width:64ch}
+  header{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  section{margin:0 0 38px}
+  h2{font-size:.78rem;letter-spacing:.15em;text-transform:uppercase;color:var(--action);font-weight:700;margin:0 0 14px}
+  h3{font-size:1.02rem;margin:0 0 6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:12px;box-shadow:0 1px 2px rgba(24,28,36,.03)}
+  .card p{margin:0 0 10px}
+  .card p:last-child{margin-bottom:0}
+
+  /* diagram */
+  .diagram{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;overflow-x:auto}
+  .flow{display:flex;align-items:stretch;gap:0;min-width:640px}
+  .node{flex:1 1 0;min-width:130px;border:1.5px solid var(--line);border-radius:12px;padding:12px 13px;background:#fdfcfb}
+  .node .t{font-family:var(--mono);font-size:.72rem;color:var(--soft);margin-bottom:6px}
+  .node .n{font-weight:700;font-size:.9rem;margin-bottom:4px}
+  .node .d{font-size:.8rem;color:var(--soft);line-height:1.4}
+  .node.ui{border-color:#cfd6e2;background:var(--action-soft)}
+  .node.logic{border-color:#d9d3c7;background:#fbf9f5}
+  .node.guard{border-color:var(--accent-line);background:var(--accent-soft)}
+  .node.store{border-color:#e0b7b2;background:#f6e5e3}
+  .arw{flex:0 0 28px;display:flex;align-items:center;justify-content:center;color:#b3aca0;font-weight:700}
+  .diagram .note{margin:16px 0 0;font-size:.86rem;color:var(--soft);border-top:1px dashed var(--line);padding-top:12px}
+
+  /* route */
+  details{border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:10px;overflow:hidden}
+  summary{cursor:pointer;list-style:none;padding:14px 18px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  summary::-webkit-details-marker{display:none}
+  summary .chev{color:var(--soft);transition:transform .18s}
+  details[open] summary .chev{transform:rotate(90deg)}
+  .stop{padding:0 18px 16px;margin:0;list-style:none}
+  .stop li{padding:12px 0;border-top:1px solid var(--line);font-size:.94rem}
+  .stop li:first-child{border-top:0}
+  .stop .path{font-family:var(--mono);font-size:.82rem;color:var(--action)}
+  .stop .sym{font-family:var(--mono);font-size:.82rem;background:var(--action-soft);border:1px solid #cdd9ec;border-radius:5px;padding:1px 6px;color:var(--action)}
+  .why{display:block;color:var(--soft);font-size:.87rem;margin-top:3px}
+
+  /* change pointers */
+  table{width:100%;border-collapse:collapse;font-size:.93rem}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+  td code{font-family:var(--mono);font-size:.81rem;color:var(--action)}
+  .badge{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:999px;padding:2px 9px;margin-left:6px}
+  footer{border-top:1px solid var(--line);padding-top:18px;color:var(--soft);font-size:.84rem}
+  footer code{font-family:var(--mono);font-size:.8rem}
+  code{font-family:var(--mono)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="kicker">First Defense - App Map</p>
+    <h1>Where everything lives</h1>
+    <p class="lede">A one-page guide to the app you built: what the pieces are, how one real action moves through them, and where to start when you want to change something.</p>
+  </header>
+
+  <section>
+    <h2>What it is, in one breath</h2>
+    <div class="card">
+      <p>Paste a suspicious message. One button. You get four things back: the ask in plain language, the pressure tactic being used, real scam patterns that look like it, and a calm next step. It never says a message is safe or unsafe.</p>
+      <p>Five small files do all the work. There is no server, no database, and no build step - just a page, four JavaScript modules, and your browser's own storage.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>One real action, end to end</h2>
+    <div class="diagram">
+      <div class="flow">
+        <div class="node ui">
+          <div class="t">index.html</div>
+          <div class="n">Paste + press</div>
+          <div class="d">One box, one button.</div>
+        </div>
+        <div class="arw">&rarr;</div>
+        <div class="node logic">
+          <div class="t">src/app.js</div>
+          <div class="n">runFind()</div>
+          <div class="d">Reads the box, handles empty / too-long / no-key.</div>
+        </div>
+        <div class="arw">&rarr;</div>
+        <div class="node guard">
+          <div class="t">src/api.js</div>
+          <div class="n">analyze()</div>
+          <div class="d">System prompt + the message as a separate user turn. Calls Gemini.</div>
+        </div>
+        <div class="arw">&rarr;</div>
+        <div class="node guard">
+          <div class="t">src/schema.js</div>
+          <div class="n">validateResult()</div>
+          <div class="d">No verdict field. Unknown keys rejected. Length caps.</div>
+        </div>
+        <div class="arw">&rarr;</div>
+        <div class="node store">
+          <div class="t">src/store.js</div>
+          <div class="n">addFind()</div>
+          <div class="d">Saves it locally. Nothing overwrites.</div>
+        </div>
+      </div>
+      <p class="note">Then <code>app.js</code> renders it: the flat ask, the accent-colored tactic box, the matching scams, and - only if a number is really in the message - the "verify it yourself" line. The calm next-step text and the phrase list come from <code>src/phrases.js</code>, which the model can never touch.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>A 3-stop route through the code</h2>
+    <details open>
+      <summary><span>Stop 1 - the button and the flow</span><span class="chev">&#8250;</span></summary>
+      <ul class="stop">
+        <li>
+          <span class="path">src/app.js</span> &middot; <span class="sym">async function runFind()</span>
+          <span class="why">This single function is the whole journey: check the input, call the model, save the find, render the result. Start any debugging here.</span>
+        </li>
+      </ul>
+    </details>
+    <details>
+      <summary><span>Stop 2 - why injection cannot win</span><span class="chev">&#8250;</span></summary>
+      <ul class="stop">
+        <li>
+          <span class="path">src/api.js</span> &middot; <span class="sym">SYSTEM_PROMPT</span> and the <span class="sym">contents</span> array
+          <span class="why">The rules live in the system message. The pasted text is a separate user message - evidence to examine, never instructions to follow. That separation is the first line of defense.</span>
+        </li>
+        <li>
+          <span class="path">src/schema.js</span> &middot; <span class="sym">validateResult()</span> and <span class="sym">FORBIDDEN_KEYS</span>
+          <span class="why">Even if the model were talked into inventing a "verdict" field, this rejects it. The shape has no slot for a verdict, so there is nowhere for one to render.</span>
+        </li>
+      </ul>
+    </details>
+    <details>
+      <summary><span>Stop 3 - where content and history live</span><span class="chev">&#8250;</span></summary>
+      <ul class="stop">
+        <li>
+          <span class="path">src/phrases.js</span> &middot; <span class="sym">GENERAL_PHRASES</span>, <span class="sym">NEXT_STEP_TEXT</span>
+          <span class="why">All fixed copy. The protective "verify with a number you look up yourself" line lives here precisely because the model must never be able to change it.</span>
+        </li>
+        <li>
+          <span class="path">src/store.js</span> &middot; <span class="sym">addFind()</span>, <span class="sym">getFinds()</span>
+          <span class="why">Your "Previous finds" panel. Append-only, newest-first, and tolerant of corrupt storage - it returns an empty list rather than crashing.</span>
+        </li>
+      </ul>
+    </details>
+  </section>
+
+  <section>
+    <h2>To change this, start here</h2>
+    <div class="card">
+      <table>
+        <thead><tr><th>If you want to change...</th><th>Open this</th></tr></thead>
+        <tbody>
+          <tr><td>The awareness phrases or the calm wording</td><td><code>src/phrases.js</code> - plain data, no logic<span class="badge">safest edit</span></td></tr>
+          <tr><td>How the model is asked to read a message</td><td><code>src/api.js</code> &rarr; <code>SYSTEM_PROMPT</code></td></tr>
+          <tr><td>What a valid result is allowed to contain</td><td><code>src/schema.js</code> &rarr; <code>validateResult()</code></td></tr>
+          <tr><td>Colors, spacing, the one accent color</td><td><code>styles.css</code> - the variables at the top</td></tr>
+          <tr><td>The on-page wording and layout</td><td><code>index.html</code></td></tr>
+          <tr><td>Which provider or model answers</td><td><code>src/api.js</code> - the only provider-specific file</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>A practice to reuse</h2>
+    <div class="card">
+      <p><strong>Make the wrong output impossible, not just forbidden.</strong> The prompt asks the model never to give a verdict, but the real protection is that the result shape has no verdict field and unknown keys are rejected (<code>src/schema.js</code>). Then it was tested with seven real attacks (<code>injection-test.html</code>).</p>
+      <p>On your next project, ask two questions early: <em>"What would the wrong output look like?"</em> and <em>"Can I make that impossible rather than ask nicely?"</em> Then attack your own thing before shipping it. That is a habit worth carrying into any project that trusts a model's answer.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Run it again: <code>npx serve .</code> in the project folder, open the printed localhost address, then add your key under "Use your own key". This map is a snapshot of commit <code>20ef574</code> and can drift as the code changes.</p>
+  </footer>
+
+</div>
+</body>
+</html>

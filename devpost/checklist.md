@@ -71,24 +71,26 @@ Build mode: fast
 
 ## Hands-on Checkpoints
 
-- [ ] Early usable behavior explored — after slice 1 (page and look) and again after slice 2 (real breakdown)
-- [ ] Final kick-the-tires exploration and feedback completed
+- [x] Early usable behavior explored - after slice 1 (page and look) and again after slice 2 (real breakdown)
+- [x] Final kick-the-tires exploration and feedback completed
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Back controls added to the error and no-key states (both were dead ends requiring a refresh)
+- [x] "Previous finds" made a fixed-height scroll box; it no longer grows the page (desktop column capped to the viewport too)
+- [x] Final review complete - feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete - guided route, focused alternative, prior practice connected, or brief recap
+- [x] Optional edit and transfer reflection addressed - offered/declined/already covered/not applicable as appropriate
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: [pending build]
-Route and stops: [pending build]
-Edit outcome: [pending build]
-Reflection: [pending build]
-Activity mode: [pending build]
+Activity and evidence: Focused alternative (learner works with agents but is newer to written plan-first). Followed one real action - paste and press - through `src/app.js > runFind`, `src/api.js > SYSTEM_PROMPT` + `contents`, and `src/schema.js > validateResult`. Connected to the learner's two stated goals: getting ideas onto paper as a structured plan, and evaluating the security of model output. Evidence: the seven-attack injection bench passing 7/7, and the two real bugs found in hands-on testing.
+Route and stops: Reference route in `devpost/app-map.html` - stop 1 `src/app.js > runFind`; stop 2 `src/api.js > SYSTEM_PROMPT`/`contents` and `src/schema.js > validateResult`/`FORBIDDEN_KEYS`; stop 3 `src/phrases.js > GENERAL_PHRASES`/`NEXT_STEP_TEXT` and `src/store.js > addFind`/`getFinds`. All paths and anchors verified against source.
+Edit outcome: Optional safe edit offered (`src/phrases.js` is plain data). No edit made during the wrap-up; the learner directed their own changes during the final review instead (back controls, sidebar scroll box).
+Reflection: Offered ("what would you do differently next time you start with an agent?"); personal answer belongs only in the ignored learner profile if given.
+Activity mode: focused alternative with live app and editor.
 
 ## Revisions
 
