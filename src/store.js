@@ -71,7 +71,7 @@ export function hasKey() {
 /** Short, single-line label from the pasted message  -  for the sidebar row. */
 export function makeLabel(message) {
   const flat = String(message || '').replace(/\s+/g, ' ').trim();
-  return flat.length > 40 ? flat.slice(0, 40).trimEnd() + '...' : flat;
+  return flat.length > 40 ? flat.slice(0, 39).trimEnd() + '...' : flat;
 }
 
 /** Newest-first list. Never throws; returns [] on any problem. */
@@ -80,23 +80,37 @@ export function getFinds() {
   if (!Array.isArray(list)) return [];
   return list
     .filter((f) => f && typeof f === 'object' && f.id && f.result)
-    .sort((a, b) => b.createdAt - a.createdAt);
+    .sort((a, b) => {
+      // createdAt can tie when two finds happen in the same millisecond,
+      // so fall back to insertion order (seq) to keep newest-first stable.
+      if (b.createdAt !== a.createdAt) return b.createdAt - a.createdAt;
+      return (b.seq || 0) - (a.seq || 0);
+    });
 }
 
 /** Append one find. Never modifies or deletes existing entries. */
 export function addFind(message, result) {
   const list = readJSON(FIND_KEY, []);
   const safeList = Array.isArray(list) ? list : [];
+  const now = Date.now();
+  // A monotonic sequence so ordering is stable even within one millisecond.
+  const lastSeq = safeList.reduce((max, f) => Math.max(max, (f && f.seq) || 0), 0);
   const entry = {
-    id: (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random().toString(16).slice(2),
-    createdAt: Date.now(),
+    id: (crypto.randomUUID && crypto.randomUUID()) || now + '-' + Math.random().toString(16).slice(2),
+    seq: lastSeq + 1,
+    createdAt: now,
     label: makeLabel(message),
     message: String(message || ''),
     result
   };
   safeList.push(entry);
-  const trimmed = safeList.slice(-MAX_ENTRIES); // oldest beyond the cap fall away; nothing recent is touched
-  writeJSON(FIND_KEY, trimmed);
+  // Keep the newest MAX_ENTRIES by createdAt+seq; drop the oldest.
+  const sorted = safeList.slice().sort((a, b) => {
+    const at = a.createdAt || 0, bt = b.createdAt || 0;
+    if (bt !== at) return bt - at;
+    return ((b.seq || 0) - (a.seq || 0));
+  });
+  writeJSON(FIND_KEY, sorted.slice(0, MAX_ENTRIES));
   return entry;
 }
 

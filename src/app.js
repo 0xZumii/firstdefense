@@ -277,6 +277,12 @@ function init() {
   renderSidebar();
   el('sidebarInner').hidden = window.matchMedia('(max-width: 1039px)').matches;
 
+  // Storage may have been cleared in another tab, or a previous find may have
+  // been added there. Re-render the sidebar when this tab becomes visible again.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) renderSidebar();
+  });
+
   el('keyToggle').addEventListener('click', () => {
     if (el('keyBody').hidden) openKeyBar(); else closeKeyBar();
   });
@@ -301,6 +307,7 @@ function init() {
   el('haveAnotherBtn').addEventListener('click', () => {
     el('messageInput').value = '';
     showState(STATES.FIND);
+    renderSidebar();               // history is untouched; just re-render the list
     el('messageInput').focus();
   });
 
