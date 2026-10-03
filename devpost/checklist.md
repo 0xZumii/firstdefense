@@ -39,7 +39,7 @@ Build mode: fast
   Learner check: Paste a real suspicious message you have (or write one), press the button, and tell me whether the flat "what they want you to do" line reads correctly to a non-technical person.
   Commit: `Wire the real model breakdown with validation and error states`
 
-- [ ] **3. It can't be talked out of its job**
+- [x] **3. It can't be talked out of its job**
   Becomes usable: The six defense layers from `spec.md > How the prompt-injection defense actually works` are exercised against real hijack attempts, with the observed results recorded.
   Why now: The learner's stated goal is evaluating the security of the output, and the spec's guarantee is currently an untested claim. This slice converts the claim into evidence while the code is fresh.
   PRD ref: `prd.md > States and Boundaries` (message containing instructions aimed at the tool)
