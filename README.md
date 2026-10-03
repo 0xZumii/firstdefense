@@ -1,5 +1,7 @@
 # First Defense
 
+<img src="assets/logo-full.jpg" alt="First Defense" width="420">
+
 **Paste a suspicious message. Get the plain-language version of what it is actually asking you to do.**
 
 First Defense is built for people who get targeted most: older, non-technical family members facing
