@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>First Defense — understand what a message is really asking you to do</title>
+<meta name="description" content="Paste a suspicious message. First Defense explains in plain language what it is asking you to do and the pressure tactic it uses. It never tells you something is safe or unsafe.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="shell header-row">
+    <a class="brand" href="./">
+      <span class="brand-mark" aria-hidden="true">◎</span>
+      <span class="brand-name">First Defense</span>
+    </a>
+    <button class="btn btn-quiet" id="haveAnotherBtn" type="button" hidden>Have another?</button>
+  </div>
+</header>
+
+<main class="shell">
+
+  <!-- ============ RESPONSIBILITY NOTICE — always present ============ -->
+  <p class="stance">
+    First Defense explains what a message is asking you to do and how it tries to rush
+    you. It <strong>never</strong> tells you a message is safe or unsafe — a wrong answer
+    either way is worse than no answer. It gives you the thinking back.
+  </p>
+
+  <!-- ============ STATE 1 / 2: ARRIVAL + PROCESSING ============ -->
+  <section id="stateFind" class="state" aria-labelledby="findHeading">
+    <h1 id="findHeading" class="find-heading">Paste a message you're not sure about</h1>
+
+    <div class="field">
+      <label class="field-label" for="messageInput">Paste your message here</label>
+      <textarea id="messageInput" class="message-input" rows="7"
+        placeholder="Copy and paste the text message, email, or DM exactly as you received it. Don't change anything — the wording is the clue."></textarea>
+      <p class="field-hint" id="charHint" hidden></p>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" id="findBtn" type="button">Find out now</button>
+      <p class="processing" id="processing" hidden>
+        <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        Looking at this message…
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ STATE 3: RESULT ============ -->
+  <section id="stateResult" class="state" aria-labelledby="resultHeading" hidden>
+    <h1 id="resultHeading" class="find-heading">Here's what that message is doing</h1>
+
+    <div class="result-block">
+      <h2 class="block-title">What they want you to do</h2>
+      <p class="ask-text" id="askText"></p>
+    </div>
+
+    <div class="result-block result-tactic">
+      <h2 class="block-title">How this message tries to rush you</h2>
+      <ul class="tactic-list" id="tacticList"></ul>
+    </div>
+
+    <div class="result-block">
+      <h2 class="block-title">Scams that look like this</h2>
+      <ul class="scam-list" id="scamList"></ul>
+    </div>
+
+    <div class="result-block result-next" id="phoneGuidance" hidden>
+      <h2 class="block-title">Before you call anyone</h2>
+      <p id="phoneGuidanceText"></p>
+    </div>
+
+    <div class="result-block result-next">
+      <h2 class="block-title">Slow down</h2>
+      <p id="nextStepText"></p>
+    </div>
+
+    <p class="sample-flag" id="sampleFlag" hidden></p>
+  </section>
+
+  <!-- ============ STATE 4: NO KEY ============ -->
+  <section id="stateNoKey" class="state" aria-labelledby="nokeyHeading" hidden>
+    <h1 id="nokeyHeading" class="find-heading">This copy can't look at messages yet</h1>
+    <p class="state-lede">
+      First Defense needs a key to reach the language model that does the reading.
+      Nothing you paste is sent anywhere without a key. Add one below and try again.
+    </p>
+    <p class="field-hint">Where to get one: <strong>aistudio.google.com/apikey</strong>. It stays in this browser only.</p>
+  </section>
+
+  <!-- ============ STATE 5: ERROR ============ -->
+  <section id="stateError" class="state" aria-labelledby="errHeading" hidden>
+    <h1 id="errHeading" class="find-heading">We couldn't read this one</h1>
+    <p class="state-lede" id="errorText"></p>
+    <div class="result-block result-next">
+      <h2 class="block-title">Whatever you do</h2>
+      <p>Don't act on the message yet. If it mentions an account, a payment, or a refund, look up the company's number
+      yourself — the one on their website or the back of your card — and call that. Never call a number that came
+      in the message.</p>
+    </div>
+  </section>
+
+  <!-- ============ ALWAYS VISIBLE: GENERAL PHRASES ============ -->
+  <section class="phrases" aria-labelledby="phrasesHeading">
+    <h2 id="phrasesHeading" class="section-title">Common scam phrases and tactics to know</h2>
+    <p class="section-lede">These sentences show up again and again. You don't have to remember them — just know that seeing one is a reason to slow down.</p>
+    <ul class="phrases-list" id="phrasesList"></ul>
+  </section>
+
+  <!-- ============ API KEY CONTROL ============ -->
+  <section class="keybar" aria-labelledby="keyHeading">
+    <button class="keybar-toggle" id="keyToggle" type="button" aria-expanded="false">
+      <span id="keySummary">Use your own key</span>
+      <span class="chev" aria-hidden="true">›</span>
+    </button>
+    <div class="keybar-body" id="keyBody" hidden>
+      <p class="field-hint">
+        On the public version of this page there is no key built in — that would let anyone spend it.
+        Paste your own Gemini key to turn on live reading. It is kept in this browser and never sent
+        anywhere except to Google.
+      </p>
+      <label class="field-label" for="keyInput">Gemini API key</label>
+      <input id="keyInput" class="key-input" type="password" placeholder="paste key here" autocomplete="off">
+      <div class="action-row">
+        <button class="btn btn-primary" id="saveKeyBtn" type="button">Save key</button>
+        <button class="btn btn-quiet" id="forgetKeyBtn" type="button">Forget key</button>
+        <span class="key-status" id="keyStatus" role="status"></span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ PREVIOUS FINDS SIDEBAR ============ -->
+<aside class="sidebar" id="sidebar" aria-labelledby="prevHeading">
+  <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-expanded="false">
+    <span>Previous finds</span>
+    <span class="chev" aria-hidden="true">›</span>
+  </button>
+  <div class="sidebar-inner" id="sidebarInner">
+    <h2 id="prevHeading" class="sidebar-title">Previous finds</h2>
+    <p class="sidebar-empty" id="sidebarEmpty">Nothing yet. Messages you check will be listed here.</p>
+    <ul class="sidebar-list" id="sidebarList"></ul>
+  </div>
+</aside>
+
+<footer class="site-footer">
+  <div class="shell">
+    <p>First Defense is an educational tool. It does not scan links, accounts, or transactions, and it never
+    declares a message safe or unsafe. When in doubt: don't reply, don't call the number in the message, and
+    verify through a number you find yourself.</p>
+  </div>
+</footer>
+
+<script type="module" src="src/app.js"></script>
+</body>
+</html>
