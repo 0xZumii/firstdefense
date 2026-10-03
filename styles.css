@@ -287,7 +287,21 @@ body{
   margin: 0 0 10px;
 }
 .sidebar-empty{ font-size: .9rem; color: var(--ink-faint); margin: 0; }
-.sidebar-list{ list-style: none; margin: 0; padding: 0; }
+.sidebar-list{
+  list-style: none; margin: 0; padding: 0;
+  /* A fixed-height scroll area, so many finds never push the page down. */
+  max-height: 340px;
+  overflow-y: auto;
+  padding-right: 4px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.sidebar-list::-webkit-scrollbar{ width: 8px; }
+.sidebar-list::-webkit-scrollbar-thumb{
+  background: var(--line-strong); border-radius: 4px;
+}
+.sidebar-list::-webkit-scrollbar-track{ background: transparent; }
 .sidebar-item{
   width: 100%; text-align: left;
   font: inherit; font-size: .95rem; color: var(--ink);
@@ -329,11 +343,20 @@ body{
     grid-area: sidebar;
     position: sticky; top: 78px;
     width: 300px; margin: 0; padding: 26px 22px 40px 0;
+    max-height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
   }
   .site-footer{ grid-area: footer; }
   .sidebar-toggle{ cursor: default; }
   .sidebar-toggle .chev{ display: none; }
-  .sidebar-inner{ padding-top: 0; }
+  .sidebar-inner{
+    padding-top: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .sidebar-list{ max-height: calc(100vh - 260px); }
 }
 
 /* mobile sidebar toggle hides the inner list until opened */

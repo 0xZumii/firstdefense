@@ -89,12 +89,18 @@
       Nothing you paste is sent anywhere without a key. Add one below and try again.
     </p>
     <p class="field-hint">Where to get one: <strong>aistudio.google.com/apikey</strong>. It stays in this browser only.</p>
+    <div class="action-row">
+      <button class="btn btn-quiet" id="nokeyBackBtn" type="button">Back to my message</button>
+    </div>
   </section>
 
   <!-- ============ STATE 5: ERROR ============ -->
   <section id="stateError" class="state" aria-labelledby="errHeading" hidden>
     <h1 id="errHeading" class="find-heading">We couldn't read this one</h1>
     <p class="state-lede" id="errorText"></p>
+    <div class="action-row">
+      <button class="btn btn-primary" id="errorBackBtn" type="button">Try another message</button>
+    </div>
     <div class="result-block result-next">
       <h2 class="block-title">Whatever you do</h2>
       <p>Don't act on the message yet. If it mentions an account, a payment, or a refund, look up the company's number
@@ -111,7 +117,8 @@
   </section>
 
   <!-- ============ API KEY CONTROL ============ -->
-  <section class="keybar" aria-labelledby="keyHeading">    <button class="keybar-toggle" id="keyToggle" type="button" aria-expanded="false">
+  <section class="keybar" aria-labelledby="keyHeading">
+    <button class="keybar-toggle" id="keyToggle" type="button" aria-expanded="false">
       <span id="keySummary">Use your own key</span>
       <span class="chev" aria-hidden="true">&#8250;</span>
     </button>

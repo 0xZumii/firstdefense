@@ -49,7 +49,7 @@ Build mode: fast
   Learner check: Look at the hijack transcripts I record and tell me whether the output ever *reads* as the tool giving permission or a verdict — this is your security call, not mine.
   Commit: `Harden output against prompt injection and record results`
 
-- [ ] **4. Previous finds and the key control work**
+- [x] **4. Previous finds and the key control work**
   Becomes usable: Every completed find is saved locally and listed newest-first in "Previous finds"; selecting one re-renders it; nothing overwrites; "Have another?" resets the input. A visitor can paste their own key and it is remembered.
   Why now: History is what makes the tool returnable and proves the local-storage data model; it depends on real results existing, so it follows the kernel.
   PRD ref: `prd.md > Previous finds`, `prd.md > States and Boundaries` (persistence)
@@ -59,7 +59,7 @@ Build mode: fast
   Learner check: Do two finds, reload, and open one from "Previous finds". Tell me whether the label makes it obvious which message you're opening.
   Commit: `Add local history, sidebar, and visitor key storage`
 
-- [ ] **5. Final polish and demo-ready copy**
+- [x] **5. Final polish and demo-ready copy**
   Becomes usable: The specifics left open by the spec, decided from what the hands-on reviews surface: the exact no-ask/no-tactic copy, header/button wording, the curated general-phrase list, concrete fonts and hex values within the agreed look, and a README with run and key instructions.
   Why now: These are the details that only make sense once the whole thing runs and has been looked at by a human.
   PRD ref: `prd.md > General scam phrases (always visible)`, `prd.md > Open Questions`

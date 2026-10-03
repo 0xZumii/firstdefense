@@ -55,6 +55,17 @@ function setProcessing(on) {
   inputLocked = on;
 }
 
+/**
+ * Return to the arrival state from anywhere - result, error, or no-key.
+ * Keeps the typed message, so a user who hit a too-long error can trim it
+ * rather than retype. History is untouched.
+ */
+function returnHome() {
+  showState(STATES.FIND);
+  renderSidebar();
+  el('messageInput').focus();
+}
+
 /* ------------------------------------------------------------------ *
  * Previous finds sidebar (prd.md > Previous finds)
  * ------------------------------------------------------------------ */
@@ -304,12 +315,9 @@ function init() {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !inputLocked) runFind();
   });
 
-  el('haveAnotherBtn').addEventListener('click', () => {
-    el('messageInput').value = '';
-    showState(STATES.FIND);
-    renderSidebar();               // history is untouched; just re-render the list
-    el('messageInput').focus();
-  });
+  el('haveAnotherBtn').addEventListener('click', returnHome);
+  el('errorBackBtn').addEventListener('click', returnHome);
+  el('nokeyBackBtn').addEventListener('click', returnHome);
 
   showState(STATES.FIND);
 }
