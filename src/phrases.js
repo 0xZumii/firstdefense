@@ -89,6 +89,9 @@ export const NO_ASK_TEXT =
 /** The empty-tactics case. Again: no reassurance either way. */
 export const NO_TACTICS_TEXT = 'This message does not lean on the usual pressure tactics. It can still be a scam.';
 
+/** When no sample scam pattern closely matches. Still no reassurance. */
+export const NO_MATCH_TEXT = 'No close match found in our examples - which does not make the message safe.';
+
 /** A clearly-labeled sample breakdown, used only as a fallback demonstration. */
 export const SAMPLE_RESULT = {
   ask: 'They want you to call the number in the message and give them your account details.',

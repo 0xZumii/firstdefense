@@ -29,6 +29,21 @@ const ENDPOINT = (model) =>
 const REQUEST_TIMEOUT_MS = 25000; // observed latency ~2-4s; allow generous headroom
 export const MAX_INPUT_CHARS = 6000; // a real message is short; a huge paste is abuse
 
+/**
+ * Optional local key file for development. A guarded dynamic import means a
+ * missing env.js (the deployed case) resolves to "no file key" instead of a
+ * 404 that would break the whole module graph. env.js is gitignored.
+ */
+async function readEnvKey() {
+  try {
+    const mod = await import('../env.js');
+    const value = (mod && mod.default && mod.default.GEMINI_API_KEY) || (mod && mod.GEMINI_API_KEY) || '';
+    return String(value).trim();
+  } catch {
+    return '';
+  }
+}
+
 export const ERROR = {
   NO_KEY: 'NO_KEY',
   EMPTY: 'EMPTY',
@@ -75,7 +90,7 @@ export async function analyze(messageText) {
   if (!message) throw fail(ERROR.EMPTY);
   if (message.length > MAX_INPUT_CHARS) throw fail(ERROR.TOO_LONG);
 
-  const key = getKey();
+  const key = getKey() || await readEnvKey();
   if (!key) throw fail(ERROR.NO_KEY);
 
   const body = {

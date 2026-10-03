@@ -15,7 +15,8 @@ import {
   PHONE_GUIDANCE_TEXT,
   ERROR_COPY,
   NO_ASK_TEXT,
-  NO_TACTICS_TEXT
+  NO_TACTICS_TEXT,
+  NO_MATCH_TEXT
 } from './phrases.js';
 import { analyze, ERROR, MAX_INPUT_CHARS } from './api.js';
 import { textPushesPhoneNumber } from './schema.js';
@@ -108,7 +109,6 @@ function renderResult(result, { rawMessage = '', sample = false } = {}) {
   // 1. the flat ask
   const ask = (result.ask || '').trim();
   setText(el('askText'), ask || NO_ASK_TEXT);
-
   // 2. the tactic(s)  -  the one accent-colored block (static UI, model text only)
   const tactics = Array.isArray(result.tactics) ? result.tactics : [];
   const tacticList = el('tacticList');
@@ -140,7 +140,7 @@ function renderResult(result, { rawMessage = '', sample = false } = {}) {
   clear(scamList);
   if (scams.length === 0) {
     const li = document.createElement('li');
-    setText(li, 'No close match found in our examples  -  which does not make the message safe.');
+    setText(li, NO_MATCH_TEXT);
     scamList.appendChild(li);
   } else {
     for (const s of scams) {
